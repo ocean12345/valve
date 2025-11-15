@@ -14,11 +14,11 @@ extern float Iref_B;
 // ---- 电流闭环参数 ----
 #define I_REF         1.5f        // 目标电流（A）
 #define PWM_MIN       0.05f       // 最小占空比
-#define PWM_MAX       0.90f       // 最大占空比
+#define PWM_MAX       0.20f       // 最大占空比
 
 // ---- PI控制参数（根据系统调试调整）----
-#define KP            0.2f
-#define KI            1.0f      // 积分增益与采样周期有关
+#define KP            0.3f
+#define KI            1.5f      // 积分增益与采样周期有关
 #define CURRENT_LPF_K 0.2f  // 电流滤波
 #define CURRENT_DEADBAND 0.05f  // 死区，减少抖动
 #define LOOP_PERIOD_S 0.001f      // 控制周期（1ms）
@@ -82,11 +82,11 @@ void CurrentLoop_Update(void)
     integral_A += eA * KI * LOOP_PERIOD_S;
     integral_B += eB * KI * LOOP_PERIOD_S;
 
-    uA = KP * eA + integral_A;
-    uB = KP * eB + integral_B;
+//    uA = KP * eA + integral_A;
+//    uB = KP * eB + integral_B;
 		
-//		uA = Iref_A;
-//		uB = Iref_B;
+		uA = Iref_A;
+		uB = Iref_B;
     // 限幅
     if (uA > PWM_MAX) { uA = PWM_MAX; integral_A -= 0.001f; }
     if (uA < -PWM_MAX) { uA = -PWM_MAX; integral_A -= 0.001f; }

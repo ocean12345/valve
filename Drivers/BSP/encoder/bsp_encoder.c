@@ -48,7 +48,7 @@ void ENCODER_TIMx_Init(void)
   htimx_Encoder.Init.Period         = ENCODER_TIM_PERIOD;
   htimx_Encoder.Init.ClockDivision  = TIM_CLOCKDIVISION_DIV1;
 
-  sEncoderConfig.EncoderMode        = TIM_ENCODERMODE_TI12;                             
+  sEncoderConfig.EncoderMode        = TIM_ENCODERMODE_TIx;        // SMS，设定是TI1的边沿计数还是TI2的边沿计数，还是都计数。注，F4的宏里，TIM_ENCODERMODE_TI1表示SMS=001，是在TI2通道的边沿信号计数。TIM_ENCODERMODE_TI2时同样，是在TI1通道的边沿信号计数，反的。                            
   sEncoderConfig.IC1Polarity        = TIM_ICPOLARITY_RISING;      // CC1P，选择计数方向。
   sEncoderConfig.IC1Selection       = TIM_ICSELECTION_DIRECTTI;   // CC1S，输入来源选择，此处TI1~TI4对应IC1~4                       
   sEncoderConfig.IC1Prescaler       = TIM_ICPSC_DIV1;             // IC1PSC，对IC1进行分频，多少次事件(有效边沿)才执行一次捕获            
@@ -68,8 +68,6 @@ void ENCODER_TIMx_Init(void)
   
   HAL_NVIC_SetPriority(ENCODER_TIM_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(ENCODER_TIM_IRQn);
-	
-	HAL_TIM_Encoder_Start_IT(&htimx_Encoder, TIM_CHANNEL_ALL);
 }
 
 /**
@@ -129,15 +127,6 @@ void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef* htim_base)
   */
 void ENCODER_TIM_IRQHANDLER(void)
 {
-	 if ( __HAL_TIM_GET_FLAG(&htimx_Encoder, TIM_FLAG_UPDATE) )
-    {
-        __HAL_TIM_CLEAR_FLAG(&htimx_Encoder, TIM_FLAG_UPDATE);
-
-        if (__HAL_TIM_IS_TIM_COUNTING_DOWN(&htimx_Encoder))
-            OverflowCount--;
-        else
-            OverflowCount++;
-    }
   HAL_TIM_IRQHandler(&htimx_Encoder);
 }
 

@@ -7,6 +7,7 @@ static volatile int32_t g_step_pos = 0;   // 全局位置计数（单位：步）
 float Iref_A;
 float Iref_B;
 
+// 八步表
 #define MICROSTEP 16
 #define I_MAX     2.5f   // 峰值电流，可以改
 
@@ -23,6 +24,8 @@ const float cos_tbl[16] = {
    -1.0000f, -0.9239f, -0.7071f, -0.3827f,
     0.0000f,  0.3827f,  0.7071f,  0.9239f
 };
+
+
 
 // 执行一步（由定时器中断触发）
 void StepMotor_Step(void)

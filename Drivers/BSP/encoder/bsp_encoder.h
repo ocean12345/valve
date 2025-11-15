@@ -29,17 +29,17 @@
 
 
 
-#define ENCODER_TIMx                        TIM4
-#define ENCODER_TIM_RCC_CLK_ENABLE()        __HAL_RCC_TIM4_CLK_ENABLE()
-#define ENCODER_TIM_RCC_CLK_DISABLE()       __HAL_RCC_TIM4_CLK_DISABLE()
+#define ENCODER_TIMx                        TIM2
+#define ENCODER_TIM_RCC_CLK_ENABLE()        __HAL_RCC_TIM2_CLK_ENABLE()
+#define ENCODER_TIM_RCC_CLK_DISABLE()       __HAL_RCC_TIM2_CLK_DISABLE()
 
-#define ENCODER_TIM_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOB_CLK_ENABLE()
-#define ENCODER_TIM_CH1_PIN                 GPIO_PIN_6
-#define ENCODER_TIM_CH1_GPIO                GPIOB
-#define ENCODER_TIM_CH2_PIN                 GPIO_PIN_7
+#define ENCODER_TIM_GPIO_CLK_ENABLE()       {__HAL_RCC_GPIOA_CLK_ENABLE();__HAL_RCC_GPIOB_CLK_ENABLE();}
+#define ENCODER_TIM_CH1_PIN                 GPIO_PIN_15
+#define ENCODER_TIM_CH1_GPIO                GPIOA
+#define ENCODER_TIM_CH2_PIN                 GPIO_PIN_3
 #define ENCODER_TIM_CH2_GPIO                GPIOB
 
-#define ENCODER_TIM_GPIO_AF                 GPIO_AF2_TIM4
+#define ENCODER_TIM_GPIO_AF                 GPIO_AF1_TIM2
 
 #define TIM_ENCODERMODE_TIx                 TIM_ENCODERMODE_TI12
 
@@ -49,10 +49,13 @@
 // 定义定时器预分频，定时器实际时钟频率为：84MHz/（ENCODER_TIMx_PRESCALER+1）
 #define ENCODER_TIM_PRESCALER               0  // 
 
-
+// 使用32bits 的计数器作为编码器计数,F4系列的TIM2,TIM5
+// 定义定时器周期，当定时器开始计数到ENCODER_TIMx_PERIOD值是更新定时器并生成对应事件和中断
+#define ENCODER_TIM_PERIOD                  0xFFFFFFFF
+#define CNT_MAX                             4294967296
 // 使用16bits 的计数器作为编码器计数
-#define ENCODER_TIM_PERIOD                0xFFFF
-#define CNT_MAX                           65536
+//#define ENCODER_TIM_PERIOD                0xFFFF
+//#define CNT_MAX                           65536
 
 
 
@@ -70,4 +73,9 @@ void ENCODER_TIMx_Init(void);
 
 
 
+
+
+
+
 #endif /* bsp_encoder.h */
+/************** (C) COPYRIGHT 2024-2030 硬石嵌入式开发团队 *****END OF FILE****/
