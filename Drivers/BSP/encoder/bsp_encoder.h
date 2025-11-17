@@ -43,8 +43,8 @@
 
 #define TIM_ENCODERMODE_TIx                 TIM_ENCODERMODE_TI12
 
-#define ENCODER_TIM_IRQn                    TIM4_IRQn
-#define ENCODER_TIM_IRQHANDLER              TIM4_IRQHandler
+#define ENCODER_TIM_IRQn                    TIM2_IRQn
+#define ENCODER_TIM_IRQHANDLER              TIM2_IRQHandler
 
 // 定义定时器预分频，定时器实际时钟频率为：84MHz/（ENCODER_TIMx_PRESCALER+1）
 #define ENCODER_TIM_PRESCALER               0  // 

@@ -13,7 +13,6 @@
 #include "freertos_demo.h"
 
 
-extern TIM_HandleTypeDef htim2;
 
 int main(void)
 {
@@ -23,17 +22,13 @@ int main(void)
 
     delay_init(168);                    /* 延时初始化 */
     usart_init(115200);                 /* 串口初始化为115200 */
-    led_init();                         /* 初始化LED */
-    lcd_init();                         /* 初始化LCD */
-    key_init();                         /* 初始化按键 */
     sram_init();                        /* SRAM初始化 */
-		//StepMotor_Init();
     TIM_Step_Init();
     TIM_PWM_Init();
 	  TIM3_PWM_Init();
+		ENCODER_TIMx_Init();
 		HAL_Delay(1);
 		INA240_ADC_Init();
-		HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
 		HAL_NVIC_SetPriority(ADC_IRQn, 6, 0);
 		HAL_NVIC_EnableIRQ(ADC_IRQn);
 		HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 6, 0);

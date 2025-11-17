@@ -13,7 +13,7 @@ TIM_HandleTypeDef timx_handler;         /* 定时器参数句柄 */
 extern uint8_t adc_flag;
 
 TIM_HandleTypeDef htim7;   // 用于步进换相
-TIM_HandleTypeDef htim2;   // PWM定时器
+TIM_HandleTypeDef htim5;   // PWM定时器
 TIM_HandleTypeDef htim3;   // PWM定时器
 
 void TIM_Step_Init(void)
@@ -55,13 +55,13 @@ void TIM_Step_Disable(void)
 }
 
 //----------------------------------------------------
-// === TIM8：PWM 控制相电流 ===
+// === TIM5：PWM 控制相电流 ===
 //----------------------------------------------------
 void TIM_PWM_Init(void)
 {
 	// --- 1. 开启时钟 ---
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_TIM2_CLK_ENABLE();
+  __HAL_RCC_TIM5_CLK_ENABLE();
 
   // --- 2. 配置 GPIOA.3 为定时器复用功能 ---
   GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -69,16 +69,16 @@ void TIM_PWM_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;          // 复用推挽输出
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;       // 复用为 TIM2_CH4
+  GPIO_InitStruct.Alternate = GPIO_AF2_TIM5;       // 复用为 TIM5_CH4
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
- // --- 3. 配置 TIM2 为 PWM 模式 ---
-  htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 84 - 1;        // 1MHz计数频率 (84MHz / 84)
-  htim2.Init.CounterMode = TIM_COUNTERMODE_CENTERALIGNED1;
-  htim2.Init.Period = 25 - 1;           // 20kHz PWM (1MHz / 50)
-  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  HAL_TIM_PWM_Init(&htim2);	
+ // --- 3. 配置 TIM5 为 PWM 模式 ---
+  htim5.Instance = TIM5;
+  htim5.Init.Prescaler = 84 - 1;        // 1MHz计数频率 (84MHz / 84)
+  htim5.Init.CounterMode = TIM_COUNTERMODE_CENTERALIGNED1;
+  htim5.Init.Period = 25 - 1;           // 20kHz PWM (1MHz / 50)
+  htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  HAL_TIM_PWM_Init(&htim5);	
 	
 	// === CH4 用作PWM输出 ===
   TIM_OC_InitTypeDef sConfigOC = {0};
@@ -87,24 +87,30 @@ void TIM_PWM_Init(void)
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 	
-	HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1);
-  HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4);
+	HAL_TIM_PWM_ConfigChannel(&htim5, &sConfigOC, TIM_CHANNEL_1);
+  HAL_TIM_PWM_ConfigChannel(&htim5, &sConfigOC, TIM_CHANNEL_4);
 	
-	// === 主模式触发输出：在中点采样 (OC4REF) ===
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;   // OC4参考点产生TRGO
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig);
+//	// === 主模式触发输出：在中点采样 (OC4REF) ===
+//  TIM_MasterConfigTypeDef sMasterConfig = {0};
+//  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;   // OC4参考点产生TRGO
+//  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+//  HAL_TIMEx_MasterConfigSynchronization(&htim5, &sMasterConfig);
+	
+	 TIM_OC_InitTypeDef sTrig = {0};
+   sTrig.OCMode = TIM_OCMODE_TOGGLE;
+   sTrig.Pulse = (htim5.Init.Period + 1) / 2; // 中点
+   HAL_TIM_OC_ConfigChannel(&htim5, &sTrig, TIM_CHANNEL_2);
+   HAL_TIM_OC_Start(&htim5, TIM_CHANNEL_2);
 	
 	
-	HAL_NVIC_SetPriority(TIM2_IRQn, 1, 3); /* 抢占1，子优先级3，组2 */
-  HAL_NVIC_EnableIRQ(TIM2_IRQn);         /*开启ITM3中断*/
+	HAL_NVIC_SetPriority(TIM5_IRQn, 1, 3); /* 抢占1，子优先级3，组2 */
+  HAL_NVIC_EnableIRQ(TIM5_IRQn);         /*开启ITM3中断*/
 	
 	
-	HAL_TIM_Base_Start_IT(&htim2);
+	HAL_TIM_Base_Start_IT(&htim5);
   // === 启动PWM ===
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_4);
 }
 
 
@@ -173,26 +179,26 @@ void PWM_Output_A(float duty)
 {
     duty = ClampDuty(duty);
 
-    uint32_t period = htim2.Init.Period;
+    uint32_t period = htim5.Init.Period;
     uint32_t pwm = (uint32_t)(fabsf(duty) * period);
 
     if (duty > 0)
     {
         // 正向电流：A+ = PWM，A- = 0
-        __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, pwm); 
-        __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 0);
+        __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_4, pwm); 
+        __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, 0);
     }
     else if (duty < 0)
     {
         // 反向电流：A+ = 0，A- = PWM
-        __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 0); 
-        __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, pwm);
+        __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_4, 0); 
+        __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, pwm);
     }
     else
     {
         // 浮空
-        __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 0);
-        __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 0);
+        __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_4, 0);
+        __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, 0);
     }
 }
 
@@ -242,15 +248,15 @@ void TIM7_IRQHandler(void)
 }
 
 
-void TIM2_IRQHandler(void)
+void TIM5_IRQHandler(void)
 {
-    HAL_TIM_IRQHandler(&htim2);
+    HAL_TIM_IRQHandler(&htim5);
 }
 
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-		if (htim->Instance == TIM2)      // TIM2: 20kHz PWM
+		if (htim->Instance == TIM5)      // TIM5: 20kHz PWM
     {
         static uint8_t loop_div = 0;
 
@@ -265,5 +271,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
             }
         }
     }
+		if (htim->Instance == TIM2)
+		{
+			if(__HAL_TIM_IS_TIM_COUNTING_DOWN(&htimx_Encoder))    // 读CR1的DIR位，0为计数器递增，1为计数器递减，若非中心对齐模式，则仅表示为电机正或反的转动方向              
+				OverflowCount--;       //向下计数溢出
+			else
+				OverflowCount++;       //向上计数溢出
+		}
 }
 

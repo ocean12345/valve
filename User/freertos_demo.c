@@ -25,7 +25,7 @@ extern float INA240_Current_B;
 extern int adc_flag;
 extern float vout;
 extern ADC_HandleTypeDef hadc1;
-extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim5;
 extern TIM_HandleTypeDef htim3;
 extern UART_HandleTypeDef g_uart1_handle;
 extern float pwm_outA;
@@ -160,13 +160,13 @@ void task2(void *pvParameters)
 		//HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0,GPIO_PIN_SET);
     while (1)
     {
-//      CaptureNumber = (OverflowCount*CNT_MAX) + __HAL_TIM_GET_COUNTER(&htimx_Encoder);
+      CaptureNumber = (OverflowCount*CNT_MAX) + __HAL_TIM_GET_COUNTER(&htimx_Encoder);
 			MeasureCurrent();
 			StepMotor_PrintPinState();
-//      printf("输入捕获值：%lld \n",CaptureNumber);
-//      printf("行程：%.3lf mm\n",(double)(CaptureNumber*5)/1000.0f);
-//			printf("TIM2_CH4 占空比: %.1f\r\n", 
-//        (__HAL_TIM_GET_COMPARE(&htim2, TIM_CHANNEL_4) * 100.0f) / (__HAL_TIM_GET_AUTORELOAD(&htim2)));
+      printf("输入捕获值：%lld \n",CaptureNumber);
+      printf("行程：%.3lf mm\n",(double)(CaptureNumber*5)/1000.0f);
+			printf("TIM5_CH4 占空比: %.1f\r\n", 
+        (__HAL_TIM_GET_COMPARE(&htim5, TIM_CHANNEL_4) * 100.0f) / (__HAL_TIM_GET_AUTORELOAD(&htim5)));
 			vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
