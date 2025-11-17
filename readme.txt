@@ -1,1 +1,1 @@
-//motor control project
+//step motor control project
