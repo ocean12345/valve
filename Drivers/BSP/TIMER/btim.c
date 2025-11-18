@@ -4,13 +4,17 @@
 #include "./BSP/encoder/bsp_encoder.h"
 #include "./BSP/motor/bsp_motor.h"
 #include "./BSP/PWM/bsp_pwm.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 
 #define PWM_MIN       0.05f
 #define PWM_MAX       0.20f
-TIM_HandleTypeDef timx_handler;         /* 定时器参数句柄 */
 
 extern uint8_t adc_flag;
+extern float INA240_Current_A;
+extern float INA240_Current_B;
+extern uint8_t control_flag;
 
 TIM_HandleTypeDef htim7;   // 用于步进换相
 TIM_HandleTypeDef htim5;   // PWM定时器
@@ -89,20 +93,7 @@ void TIM_PWM_Init(void)
 	
 	HAL_TIM_PWM_ConfigChannel(&htim5, &sConfigOC, TIM_CHANNEL_1);
   HAL_TIM_PWM_ConfigChannel(&htim5, &sConfigOC, TIM_CHANNEL_4);
-	
-//	// === 主模式触发输出：在中点采样 (OC4REF) ===
-//  TIM_MasterConfigTypeDef sMasterConfig = {0};
-//  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;   // OC4参考点产生TRGO
-//  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-//  HAL_TIMEx_MasterConfigSynchronization(&htim5, &sMasterConfig);
-	
-	 TIM_OC_InitTypeDef sTrig = {0};
-   sTrig.OCMode = TIM_OCMODE_TOGGLE;
-   sTrig.Pulse = (htim5.Init.Period + 1) / 2; // 中点
-   HAL_TIM_OC_ConfigChannel(&htim5, &sTrig, TIM_CHANNEL_2);
-   HAL_TIM_OC_Start(&htim5, TIM_CHANNEL_2);
-	
-	
+
 	HAL_NVIC_SetPriority(TIM5_IRQn, 1, 3); /* 抢占1，子优先级3，组2 */
   HAL_NVIC_EnableIRQ(TIM5_IRQn);         /*开启ITM3中断*/
 	
@@ -147,7 +138,22 @@ void TIM3_PWM_Init(void)
     HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3);
     HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4);
 
-    /* 5. 启动 PWM */
+		/* 5. 配置 ADC 触发用 OC1（不输出，只产生事件） */
+		TIM_OC_InitTypeDef sTrigOC = {0};
+		sTrigOC.OCMode = TIM_OCMODE_PWM1;
+		sTrigOC.Pulse = htim3.Init.Period / 2;   // ? 在 ARR/2 触发
+		HAL_TIM_OC_ConfigChannel(&htim3, &sTrigOC, TIM_CHANNEL_1);
+
+		/* 6. 配置 TRGO = OC1REF（HAL 方式） */
+		TIM_MasterConfigTypeDef sMasterConfig = {0};
+		sMasterConfig.MasterOutputTrigger = TIM_TRGO_OC1REF;
+		sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+		HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig);
+
+		/* 7. 启动 OC1 （产生 TRGO） */
+		HAL_TIM_OC_Start(&htim3, TIM_CHANNEL_1);
+		
+    /* 8. 启动 PWM */
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 }
@@ -181,7 +187,7 @@ void PWM_Output_A(float duty)
 
     uint32_t period = htim5.Init.Period;
     uint32_t pwm = (uint32_t)(fabsf(duty) * period);
-
+	
     if (duty > 0)
     {
         // 正向电流：A+ = PWM，A- = 0
@@ -264,7 +270,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         if (++loop_div >= 4)
         {
             loop_div = 0;
-            if (adc_flag)   // 确保本周期 ADC 已经采完
+            if (adc_flag&&control_flag)   // 确保本周期 ADC 已经采完
             {
                 adc_flag = 0;
                 CurrentLoop_Update();   

@@ -9,7 +9,7 @@
 #include "./BSP/PWM/bsp_pwm.h"
 #include "./BSP/protocol/protocol.h"
 #include "string.h"
-
+#include "math.h"
 /*FreeRTOS*********************************************************************************************/
 #include "FreeRTOS.h"
 #include "task.h"
@@ -34,11 +34,14 @@ extern float filt_currA;
 extern float uA;
 extern float uB;
 
+uint8_t control_flag = 0;
+
 float current;
 float voltage;
 float step = 0.1f;
-float maxI = 2.5f;
 float cur = 0.0f;
+float ResistanceA=0.0f;
+float ResistanceB=0.0f;
 /******************************************************************************************************/
 /*FreeRTOS配置*/
 
@@ -70,7 +73,7 @@ void task2(void *pvParameters);             /* 任务函数 */
  * 包括: 任务句柄 任务优先级 堆栈大小 创建任务
  */
 #define TASK3_PRIO      2                   /* 任务优先级 */
-#define TASK3_STK_SIZE  128                 /* 任务堆栈大小 */
+#define TASK3_STK_SIZE  512                 /* 任务堆栈大小 */
 TaskHandle_t            Task3Task_Handler;  /* 任务句柄 */
 void task3(void *pvParameters);             /* 任务函数 */
 
@@ -80,13 +83,10 @@ void MeasureCurrent(void);
 void CurrentControl(void);
 void EncoderSend(void);
 void CurrentSend(uint8_t cmd,float current_value);
+void MeasureResistance(void);
+void ResistanceSend(uint8_t cmd,float Resistance_value);
 /******************************************************************************************************/
 
-/**
- * @brief       FreeRTOS例程入口函数
- * @param       无
- * @retval      无
- */
 void freertos_demo(void)
 {
     
@@ -99,11 +99,7 @@ void freertos_demo(void)
     vTaskStartScheduler();
 }
 
-/**
- * @brief       start_task
- * @param       pvParameters : 传入参数(未用到)
- * @retval      无
- */
+
 void start_task(void *pvParameters)
 {
 
@@ -133,11 +129,7 @@ void start_task(void *pvParameters)
     taskEXIT_CRITICAL();            /* 退出临界区 */
 }
 
-/**
- * @brief       task1
- * @param       pvParameters : 传入参数(未用到)
- * @retval      无
- */
+
 void task1(void *pvParameters)
 {
 //    uint32_t task1_num = 0;
@@ -154,21 +146,22 @@ void task1(void *pvParameters)
     }
 }
 
-/**
- * @brief       task2
- * @param       pvParameters : 传入参数(未用到)
- * @retval      无
- */
 void task2(void *pvParameters)
 {   
-		TIM_Step_Enable();
-		//HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0,GPIO_PIN_SET);
     while (1)
     {
+			if(!control_flag)
+			{
+				MeasureResistance();
+				ResistanceSend(0x50,ResistanceA);
+				ResistanceSend(0x60,ResistanceB);
+				TIM_Step_Enable();
+				control_flag = 1;
+			}
 			EncoderSend();
 			CurrentSend(0x30,INA240_Current_A);
 			CurrentSend(0x40,INA240_Current_B);
-			vTaskDelay(pdMS_TO_TICKS(5000));
+			vTaskDelay(pdMS_TO_TICKS(2000));
     }
 }
 
@@ -188,15 +181,14 @@ void MeasureCurrent(void)
         dutyB_neg * 100.0f);
 }
 
-
 void task3(void *pvParameters)
-{   
-    while (1)
+{  
+	while (1)
     {
-			if(uwTick % 2 ==0)  // 2ms
-			{
-				//CurrentLoop_Update();
-			}
+//			MeasureResistance();
+//			ResistanceSend(0x50,ResistanceA);
+//			ResistanceSend(0x60,ResistanceB);
+			vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 
@@ -247,4 +239,51 @@ void motorTest(void)
 {
 		StepMotor_Start(1);
 		StepMotor_SetSpeed(200);
+}
+
+void MeasureResistance(void)
+{
+		float sampleA = 0.0f;
+		float sampleB = 0.0f;
+	//取二十次均值
+    __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_4, 3); 
+    __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, 0);
+		for(int i=0;i<20;i++)
+		{
+			sampleA += INA240_Current_A;
+			vTaskDelay(pdMS_TO_TICKS(50));
+		}
+		__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_4, 0); 
+    __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, 0);
+		sampleA /= 20.0f;
+		float duty = 4.0f/25.0f;
+		float Vbus = 24.0f;
+		float Veq = Vbus * duty;
+		ResistanceA = fabsf(Veq/sampleA);
+		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 3);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, 0);
+		for(int i=0;i<20;i++)
+		{
+			sampleB += INA240_Current_B;
+			vTaskDelay(pdMS_TO_TICKS(50));
+		}
+		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 0);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, 0);
+		sampleB /= 20.0f;
+		ResistanceB = fabsf(Veq/sampleB);
+}
+
+void ResistanceSend(uint8_t cmd,float Resistance_value)
+{
+		float temp = Resistance_value;
+		ProtocolFrame_t frame;
+		frame.head = PROTOCOL_FRAME_HEAD;//AA
+    frame.dev_id = PROTOCOL_DEV_ID;//01
+    frame.cmd = cmd;
+		frame.data_len = 4;//04
+		memcpy(frame.data, &temp, 4); 
+		frame.tail = PROTOCOL_FRAME_TAIL;//55
+		uint8_t txbuf[PROTOCOL_FRAME_MAX_LEN];
+    uint8_t txlen = Protocol_Pack(&frame, txbuf);
+		HAL_UART_Transmit(&g_uart1_handle, txbuf, txlen, 100);
 }

@@ -73,3 +73,14 @@
 ..\..\output\btim.o: ..\..\Drivers\./BSP/encoder/bsp_encoder.h
 ..\..\output\btim.o: ..\..\Drivers\./BSP/motor/bsp_motor.h
 ..\..\output\btim.o: ..\..\Drivers\./BSP/PWM/bsp_pwm.h
+..\..\output\btim.o: ..\..\Middlewares\FreeRTOS\include\FreeRTOS.h
+..\..\output\btim.o: ..\..\User\FreeRTOSConfig.h
+..\..\output\btim.o: ..\..\Drivers\./SYSTEM/usart/usart.h
+..\..\output\btim.o: D:\soft2\keil\ARM\ARMCC\Bin\..\include\stdio.h
+..\..\output\btim.o: ..\..\Middlewares\FreeRTOS\include\projdefs.h
+..\..\output\btim.o: ..\..\Middlewares\FreeRTOS\include\portable.h
+..\..\output\btim.o: ..\..\Middlewares\FreeRTOS\include\deprecated_definitions.h
+..\..\output\btim.o: ..\..\Middlewares\FreeRTOS\portable\RVDS\ARM_CM4F\portmacro.h
+..\..\output\btim.o: ..\..\Middlewares\FreeRTOS\include\mpu_wrappers.h
+..\..\output\btim.o: ..\..\Middlewares\FreeRTOS\include\task.h
+..\..\output\btim.o: ..\..\Middlewares\FreeRTOS\include\list.h

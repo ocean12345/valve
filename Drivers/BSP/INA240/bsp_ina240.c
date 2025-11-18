@@ -62,7 +62,7 @@ void INA240_ADC_Init(void)
     hadc1.Init.ScanConvMode = ENABLE;            // 启用扫描模式
     hadc1.Init.ContinuousConvMode = DISABLE;     // 禁止连续模式
     hadc1.Init.DiscontinuousConvMode = DISABLE;
-    hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T5_CC2; // TIM2触发
+    hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T3_TRGO; // TIM2触发
     hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
     hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
     hadc1.Init.NbrOfConversion = 2;              // 两个通道
@@ -76,7 +76,7 @@ void INA240_ADC_Init(void)
 
     sConfig.Channel = ADC_CHANNEL_12;            // A相
     sConfig.Rank = 1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_84CYCLES;
+    sConfig.SamplingTime = ADC_SAMPLETIME_144CYCLES;
     HAL_ADC_ConfigChannel(&hadc1, &sConfig);
 
     sConfig.Channel = ADC_CHANNEL_13;            // B相

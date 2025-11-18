@@ -1,4 +1,3 @@
-
 #ifndef __BTIM_H
 #define __BTIM_H
 
@@ -22,9 +21,6 @@ void PWM_Output_A(float duty);
 void PWM_Output_B(float duty);
 void TIM_PWM_SetDuty(float dutyA,float dutyB);
 
-/******************************************************************************************/
-
-void btim_timx_int_init(uint16_t arr, uint16_t psc);    /* 基本定时器 定时中断初始化函数 */
 
 #endif
 

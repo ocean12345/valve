@@ -34,41 +34,7 @@ float uB = 0.0f;
 
 // ---- 电流闭环更新函数 ----
 void CurrentLoop_Update(void)
-{
-//		// (1) 把 INA240 的负电流统一为正方向
-//    float i_measA = -INA240_Current_A;
-
-//    // (2) 电流低通滤波
-//    filt_currA += CURRENT_LPF_K * (i_measA - filt_currA);
-
-//    // (3) 误差：目标 - 实际
-//    float errorA = I_REF - filt_currA;
-
-//    // (4) 死区
-//    if (fabsf(errorA) < CURRENT_DEADBAND)
-//        errorA = 0.0f;
-
-//    // 5) 先计算 P+I
-//    integralA += errorA * KI * LOOP_PERIOD_S;
-
-//    float u = KP * errorA + integralA;
-
-//    // 6) 限幅 + 简单 anti-windup（超限时把积分拉回一点）
-//    if (u > PWM_MAX) {
-//        u = PWM_MAX;
-//        // 拉一点积分，避免长期顶死
-//        integralA = PWM_MAX - KP * errorA;
-//    }
-//    else if (u < PWM_MIN) {
-//        u = PWM_MIN;
-//        integralA = PWM_MIN - KP * errorA;
-//    }
-
-//    pwm_outA = u;
-
-//    TIM_PWM_SetDuty(pwm_outA,0.15);
-		
-		
+{		
 		float iA = -INA240_Current_A;
     float iB = -INA240_Current_B;
 
