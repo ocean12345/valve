@@ -594,6 +594,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\Drivers\BSP\PWM\bsp_pwm.c</FilePath>
             </File>
+            <File>
+              <FileName>protocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Drivers\BSP\protocol\protocol.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

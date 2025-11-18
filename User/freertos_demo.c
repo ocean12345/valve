@@ -7,6 +7,7 @@
 #include "./BSP/INA240/bsp_ina240.h"
 #include "./BSP/TIMER/btim.h"
 #include "./BSP/PWM/bsp_pwm.h"
+#include "./BSP/protocol/protocol.h"
 #include "string.h"
 
 /*FreeRTOS*********************************************************************************************/
@@ -30,6 +31,8 @@ extern TIM_HandleTypeDef htim3;
 extern UART_HandleTypeDef g_uart1_handle;
 extern float pwm_outA;
 extern float filt_currA;
+extern float uA;
+extern float uB;
 
 float current;
 float voltage;
@@ -75,6 +78,8 @@ void task3(void *pvParameters);             /* 任务函数 */
 void StepMotor_PrintPinState(void);
 void MeasureCurrent(void);
 void CurrentControl(void);
+void EncoderSend(void);
+void CurrentSend(uint8_t cmd,float current_value);
 /******************************************************************************************************/
 
 /**
@@ -160,26 +165,20 @@ void task2(void *pvParameters)
 		//HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0,GPIO_PIN_SET);
     while (1)
     {
-      CaptureNumber = (OverflowCount*CNT_MAX) + __HAL_TIM_GET_COUNTER(&htimx_Encoder);
-			MeasureCurrent();
-			StepMotor_PrintPinState();
-      printf("输入捕获值：%lld \n",CaptureNumber);
-      printf("行程：%.3lf mm\n",(double)(CaptureNumber*5)/1000.0f);
-			printf("TIM5_CH4 占空比: %.1f\r\n", 
-        (__HAL_TIM_GET_COMPARE(&htim5, TIM_CHANNEL_4) * 100.0f) / (__HAL_TIM_GET_AUTORELOAD(&htim5)));
-			vTaskDelay(pdMS_TO_TICKS(50));
+			EncoderSend();
+			CurrentSend(0x30,INA240_Current_A);
+			CurrentSend(0x40,INA240_Current_B);
+			vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
-extern float uA;
-extern float uB;
 
 
 void MeasureCurrent(void)
 {
-	printf("current2:%f,%f\n",INA240_Current_A,INA240_Current_B);
-	uint32_t arr = htim3.Init.Period + 1;   // TIM3 的周期（比如 25）
-    uint32_t ccr3 = __HAL_TIM_GET_COMPARE(&htim3, TIM_CHANNEL_3); // PB0 = B+
-    uint32_t ccr4 = __HAL_TIM_GET_COMPARE(&htim3, TIM_CHANNEL_4); // PB1 = B-
+		printf("current2:%f,%f\n",INA240_Current_A,INA240_Current_B);
+		uint32_t arr = htim3.Init.Period + 1;   // TIM3 的周期（比如 25）
+		uint32_t ccr3 = __HAL_TIM_GET_COMPARE(&htim3, TIM_CHANNEL_3); // PB0 = B+
+		uint32_t ccr4 = __HAL_TIM_GET_COMPARE(&htim3, TIM_CHANNEL_4); // PB1 = B-
 
     float dutyB_pos = (float)ccr3 / arr;
     float dutyB_neg = (float)ccr4 / arr;
@@ -210,6 +209,37 @@ void StepMotor_PrintPinState(void)
     uint8_t d = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1);
 
     printf("a+=%d  a-=%d  b+=%d  b-=%d index=%d\r\n", a, b, c, d,step_index);
+}
+
+void EncoderSend(void)
+{
+		CaptureNumber = (OverflowCount*CNT_MAX) + __HAL_TIM_GET_COUNTER(&htimx_Encoder);
+		const int64_t temp = CaptureNumber;
+		ProtocolFrame_t frame;
+		frame.head = PROTOCOL_FRAME_HEAD;//AA
+    frame.dev_id = PROTOCOL_DEV_ID;//01
+    frame.cmd = 0x20; //
+		frame.data_len = 8;//08
+		memcpy(frame.data, &temp, 8); 
+		frame.tail = PROTOCOL_FRAME_TAIL;//55
+		uint8_t txbuf[PROTOCOL_FRAME_MAX_LEN];
+    uint8_t txlen = Protocol_Pack(&frame, txbuf);
+		HAL_UART_Transmit(&g_uart1_handle, txbuf, txlen, 100);
+}
+
+void CurrentSend(uint8_t cmd,float current_value)
+{
+		float temp = current_value;
+		ProtocolFrame_t frame;
+		frame.head = PROTOCOL_FRAME_HEAD;//AA
+    frame.dev_id = PROTOCOL_DEV_ID;//01
+    frame.cmd = cmd;
+		frame.data_len = 4;//04
+		memcpy(frame.data, &temp, 4); 
+		frame.tail = PROTOCOL_FRAME_TAIL;//55
+		uint8_t txbuf[PROTOCOL_FRAME_MAX_LEN];
+    uint8_t txlen = Protocol_Pack(&frame, txbuf);
+		HAL_UART_Transmit(&g_uart1_handle, txbuf, txlen, 100);
 }
 
 

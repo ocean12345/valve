@@ -217,7 +217,7 @@ I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h)(0x637AF063)
 I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h)(0x637AF063)
 I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h)(0x637AF063)
 I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_hcd.h)(0x637AF063)
-F (..\..\User\freertos_demo.c)(0x691A905F)(--c99 -c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork --split_sections -I ..\..\User -I ..\..\Drivers -I ..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include -I ..\..\Drivers\CMSIS\Include -I ..\..\Drivers\STM32F4xx_HAL_Driver\Inc -I ..\..\Middlewares -I ..\..\Middlewares\FreeRTOS\include -I ..\..\Middlewares\FreeRTOS\portable\RVDS\ARM_CM4F-ID:\soft2\packs\Keil\STM32F4xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="541" -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o ..\..\output\freertos_demo.o --depend ..\..\output\freertos_demo.d)
+F (..\..\User\freertos_demo.c)(0x691BD997)(--c99 -c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork --split_sections -I ..\..\User -I ..\..\Drivers -I ..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include -I ..\..\Drivers\CMSIS\Include -I ..\..\Drivers\STM32F4xx_HAL_Driver\Inc -I ..\..\Middlewares -I ..\..\Middlewares\FreeRTOS\include -I ..\..\Middlewares\FreeRTOS\portable\RVDS\ARM_CM4F-ID:\soft2\packs\Keil\STM32F4xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="541" -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o ..\..\output\freertos_demo.o --depend ..\..\output\freertos_demo.d)
 I (..\..\User\freertos_demo.h)(0x6540A280)
 I (..\..\Drivers\./SYSTEM/delay/delay.h)(0x6911E577)
 I (..\..\Drivers\./SYSTEM/sys/sys.h)(0x6540A280)
@@ -295,6 +295,7 @@ I (..\..\Drivers\./BSP/motor/bsp_motor.h)(0x6909F860)
 I (..\..\Drivers\./BSP/INA240/bsp_ina240.h)(0x690DADA3)
 I (..\..\Drivers\./BSP/TIMER/btim.h)(0x6916E7DD)
 I (..\..\Drivers\./BSP/PWM/bsp_pwm.h)(0x690D6777)
+I (..\..\Drivers\./BSP/protocol/protocol.h)(0x691B07B9)
 I (D:\soft2\keil\ARM\ARMCC\include\string.h)(0x5D9B3488)
 I (..\..\Middlewares\FreeRTOS\include\FreeRTOS.h)(0x6540A280)
 I (..\..\User\FreeRTOSConfig.h)(0x69118F88)
@@ -2542,6 +2543,9 @@ I (..\..\Drivers\./BSP/TIMER/btim.h)(0x6916E7DD)
 I (..\..\Drivers\./BSP/motor/bsp_motor.h)(0x6909F860)
 I (D:\soft2\keil\ARM\ARMCC\include\stdbool.h)(0x5D9B3488)
 I (D:\soft2\keil\ARM\ARMCC\include\math.h)(0x5D9B3482)
+F (..\..\Drivers\BSP\protocol\protocol.c)(0x691B022B)(--c99 -c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork --split_sections -I ..\..\User -I ..\..\Drivers -I ..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include -I ..\..\Drivers\CMSIS\Include -I ..\..\Drivers\STM32F4xx_HAL_Driver\Inc -I ..\..\Middlewares -I ..\..\Middlewares\FreeRTOS\include -I ..\..\Middlewares\FreeRTOS\portable\RVDS\ARM_CM4F-ID:\soft2\packs\Keil\STM32F4xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="541" -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o ..\..\output\protocol.o --depend ..\..\output\protocol.d)
+I (..\..\Drivers\./BSP/protocol/protocol.h)(0x691B07B9)
+I (D:\soft2\keil\ARM\ARMCC\include\stdint.h)(0x5D9B3488)
 F (..\..\Middlewares\MALLOC\malloc.c)(0x6540A280)(--c99 -c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork --split_sections -I ..\..\User -I ..\..\Drivers -I ..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include -I ..\..\Drivers\CMSIS\Include -I ..\..\Drivers\STM32F4xx_HAL_Driver\Inc -I ..\..\Middlewares -I ..\..\Middlewares\FreeRTOS\include -I ..\..\Middlewares\FreeRTOS\portable\RVDS\ARM_CM4F-ID:\soft2\packs\Keil\STM32F4xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="541" -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o ..\..\output\malloc.o --depend ..\..\output\malloc.d)
 I (..\..\Middlewares\./MALLOC/malloc.h)(0x6540A280)
 I (..\..\Drivers\./SYSTEM/sys/sys.h)(0x6540A280)
@@ -3331,4 +3335,4 @@ I (..\..\Middlewares\FreeRTOS\portable\RVDS\ARM_CM4F\portmacro.h)(0x6540A280)
 I (..\..\Middlewares\FreeRTOS\include\mpu_wrappers.h)(0x6540A280)
 I (..\..\Middlewares\FreeRTOS\include\task.h)(0x6540A280)
 I (..\..\Middlewares\FreeRTOS\include\list.h)(0x6540A280)
-F (..\..\readme.txt)(0x691A7DDF)()
+F (..\..\readme.txt)(0x691A972F)()

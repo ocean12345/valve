@@ -78,6 +78,7 @@
 ..\..\output\freertos_demo.o: ..\..\Drivers\./BSP/INA240/bsp_ina240.h
 ..\..\output\freertos_demo.o: ..\..\Drivers\./BSP/TIMER/btim.h
 ..\..\output\freertos_demo.o: ..\..\Drivers\./BSP/PWM/bsp_pwm.h
+..\..\output\freertos_demo.o: ..\..\Drivers\./BSP/protocol/protocol.h
 ..\..\output\freertos_demo.o: D:\soft2\keil\ARM\ARMCC\Bin\..\include\string.h
 ..\..\output\freertos_demo.o: ..\..\Middlewares\FreeRTOS\include\FreeRTOS.h
 ..\..\output\freertos_demo.o: ..\..\User\FreeRTOSConfig.h
