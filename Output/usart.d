@@ -69,3 +69,5 @@
 ..\..\output\usart.o: ..\..\Drivers\CMSIS\Include\core_cm4.h
 ..\..\output\usart.o: ..\..\Drivers\./SYSTEM/usart/usart.h
 ..\..\output\usart.o: D:\soft2\keil\ARM\ARMCC\Bin\..\include\stdio.h
+..\..\output\usart.o: ..\..\Drivers\./BSP/protocol/protocol.h
+..\..\output\usart.o: D:\soft2\keil\ARM\ARMCC\Bin\..\include\stdbool.h

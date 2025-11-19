@@ -33,7 +33,7 @@ extern float pwm_outA;
 extern float filt_currA;
 extern float uA;
 extern float uB;
-
+extern ProtocolFrame_t rxFrame;
 uint8_t control_flag = 0;
 
 float current;
@@ -150,17 +150,17 @@ void task2(void *pvParameters)
 {   
     while (1)
     {
-			if(!control_flag)
-			{
-				MeasureResistance();
-				ResistanceSend(0x50,ResistanceA);
-				ResistanceSend(0x60,ResistanceB);
-				TIM_Step_Enable();
-				control_flag = 1;
-			}
-			EncoderSend();
-			CurrentSend(0x30,INA240_Current_A);
-			CurrentSend(0x40,INA240_Current_B);
+//			if(!control_flag)
+//			{
+//				MeasureResistance();
+//				ResistanceSend(0x50,ResistanceA);
+//				ResistanceSend(0x60,ResistanceB);
+//				TIM_Step_Enable();
+//				control_flag = 1;
+//			}
+//			EncoderSend();
+//			CurrentSend(0x30,INA240_Current_A);
+//			CurrentSend(0x40,INA240_Current_B);
 			vTaskDelay(pdMS_TO_TICKS(2000));
     }
 }
@@ -185,10 +185,8 @@ void task3(void *pvParameters)
 {  
 	while (1)
     {
-//			MeasureResistance();
-//			ResistanceSend(0x50,ResistanceA);
-//			ResistanceSend(0x60,ResistanceB);
-			vTaskDelay(pdMS_TO_TICKS(1000));
+			UART_RxHandler();
+			vTaskDelay(pdMS_TO_TICKS(500));
     }
 }
 
@@ -248,6 +246,7 @@ void MeasureResistance(void)
 	//取二十次均值
     __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_4, 3); 
     __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, 0);
+		vTaskDelay(pdMS_TO_TICKS(50));
 		for(int i=0;i<20;i++)
 		{
 			sampleA += INA240_Current_A;
@@ -262,6 +261,7 @@ void MeasureResistance(void)
 		ResistanceA = fabsf(Veq/sampleA);
 		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 3);
     __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, 0);
+		vTaskDelay(pdMS_TO_TICKS(50));
 		for(int i=0;i<20;i++)
 		{
 			sampleB += INA240_Current_B;
@@ -287,3 +287,6 @@ void ResistanceSend(uint8_t cmd,float Resistance_value)
     uint8_t txlen = Protocol_Pack(&frame, txbuf);
 		HAL_UART_Transmit(&g_uart1_handle, txbuf, txlen, 100);
 }
+
+
+

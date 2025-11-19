@@ -1,6 +1,6 @@
 #include "./SYSTEM/sys/sys.h"
 #include "./SYSTEM/usart/usart.h"
-
+#include "./BSP/protocol/protocol.h"
 
 /* 如果使用os,则包括下面的头文件即可 */
 //#if SYS_SUPPORT_OS
@@ -62,29 +62,14 @@ int fputc(int ch, FILE *f)
 /***********************************************END*******************************************/
     
 #if USART_EN_RX                                     /* 如果使能了接收 */
-
-/* 接收缓冲, 最大USART_REC_LEN个字节. */
-uint8_t g_usart_rx_buf[USART_REC_LEN];
-
-/*  接收状态
- *  bit15，      接收完成标志
- *  bit14，      接收到0x0d
- *  bit13~0，    接收到的有效字节数目
-*/
-uint16_t g_usart_rx_sta = 0;
-
-uint8_t g_rx_buffer[RXBUFFERSIZE];                  /* HAL库使用的串口接收缓冲 */
+uint8_t uart_rx_byte;               // 单字节接收缓存
+uint8_t uart_ring_buf[UART_RX_BUF_SIZE];
+volatile uint16_t uart_write_idx = 0;
+volatile uint16_t uart_read_idx = 0;
 
 UART_HandleTypeDef g_uart1_handle;                  /* UART句柄 */
+ProtocolFrame_t rxframe;
 
-
-/**
- * @brief       串口X初始化函数
- * @param       baudrate: 波特率, 根据自己需要设置波特率值
- * @note        注意: 必须设置正确的时钟源, 否则串口波特率就会设置异常.
- *              这里的USART的时钟源在sys_stm32_clock_init()函数中已经设置过了.
- * @retval      无
- */
 void usart_init(uint32_t baudrate)
 {
     g_uart1_handle.Instance = USART_UX;                         /* USART1 */
@@ -97,16 +82,10 @@ void usart_init(uint32_t baudrate)
     HAL_UART_Init(&g_uart1_handle);                             /* HAL_UART_Init()会使能UART1 */
     
     /* 该函数会开启接收中断：标志位UART_IT_RXNE，并且设置接收缓冲以及接收缓冲接收最大数据量 */
-    HAL_UART_Receive_IT(&g_uart1_handle, (uint8_t *)g_rx_buffer, RXBUFFERSIZE);
+    HAL_UART_Receive_IT(&g_uart1_handle, &uart_rx_byte, RXBUFFERSIZE);
 }
 
-/**
- * @brief       UART底层初始化函数
- * @param       huart: UART句柄类型指针
- * @note        此函数会被HAL_UART_Init()调用
- *              完成时钟使能，引脚配置，中断配置
- * @retval      无
- */
+
 void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 {
     GPIO_InitTypeDef gpio_init_struct;
@@ -134,55 +113,64 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
     }
 }
 
-/**
- * @brief       Rx传输回调函数
- * @param       huart: UART句柄类型指针
- * @retval      无
- */
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    if(huart->Instance == USART_UX)             /* 如果是串口1 */
-    {
-        if((g_usart_rx_sta & 0x8000) == 0)      /* 接收未完成 */
-        {
-            if(g_usart_rx_sta & 0x4000)         /* 接收到了0x0d */
-            {
-                if(g_rx_buffer[0] != 0x0a) 
-                {
-                    g_usart_rx_sta = 0;         /* 接收错误,重新开始 */
-                }
-                else 
-                {
-                    g_usart_rx_sta |= 0x8000;   /* 接收完成了 */
-                }
-            }
-            else                                /* 还没收到0X0D */
-            {
-                if(g_rx_buffer[0] == 0x0d)
-                {
-                    g_usart_rx_sta |= 0x4000;
-                }
-                else
-                {
-                    g_usart_rx_buf[g_usart_rx_sta & 0X3FFF] = g_rx_buffer[0] ;
-                    g_usart_rx_sta++;
-                    if(g_usart_rx_sta > (USART_REC_LEN - 1))
-                    {
-                        g_usart_rx_sta = 0;     /* 接收数据错误,重新开始接收 */
-                    }
-                }
-            }
-        }
-        
-        HAL_UART_Receive_IT(&g_uart1_handle, (uint8_t *)g_rx_buffer, RXBUFFERSIZE);
+    if(huart->Instance == UART4)             /* 如果是串口4 */
+    {   
+        uart_ring_buf[uart_write_idx++] = uart_rx_byte;
+        if (uart_write_idx >= UART_RX_BUF_SIZE)
+            uart_write_idx = 0;
+
+        // 继续接收下一个字节
+        HAL_UART_Receive_IT(&g_uart1_handle, &uart_rx_byte, 1); 
     }
 }
 
-/**
- * @brief       串口1中断服务函数
- * @param       无
- * @retval      无
- */
+// 处理缓冲区数据，查找完整协议帧
+void UART_RxHandler(void)
+{
+    while (uart_read_idx != uart_write_idx)
+    {
+        static uint8_t frame_buf[32];
+        static uint8_t idx = 0;
+
+        uint8_t byte = uart_ring_buf[uart_read_idx++];
+        if (uart_read_idx >= UART_RX_BUF_SIZE)
+            uart_read_idx = 0;
+        // 帧头同步
+        if (idx == 0)
+        {
+            if (byte == PROTOCOL_FRAME_HEAD)
+                frame_buf[idx++] = byte;
+            continue;
+        }
+
+        frame_buf[idx++] = byte;
+        // 最小长度 6
+        if (idx >= 6)
+        {
+            uint8_t data_len = frame_buf[3];
+            uint8_t expected_len = 4 + data_len + 2;
+
+            if (idx == expected_len)
+            {
+                // 完整帧解析
+								if (Protocol_Parse(frame_buf, idx, &rxframe))
+								{
+										HandleCommand(&rxframe);
+								}
+                idx = 0;
+            }
+            else if (idx > expected_len)
+            {
+                // 异常丢弃
+                idx = 0;
+            }
+        }
+    }
+}
+
 void USART_UX_IRQHandler(void)
 { 
 //#if SYS_SUPPORT_OS                              /* 使用OS */

@@ -1,5 +1,11 @@
 #include "./BSP/protocol/protocol.h"
+#include "./SYSTEM/usart/usart.h"
+#include "freertos_demo.h"
+#include "./BSP/TIMER/btim.h"
 
+extern float ResistanceA;
+extern float ResistanceB;
+extern uint8_t control_flag;
 // 校验计算：从dev_id到data最后一字节，异或
 static uint8_t Protocol_CalcChecksum(const ProtocolFrame_t *frame)
 {
@@ -32,22 +38,52 @@ uint8_t Protocol_Pack(ProtocolFrame_t *frame, uint8_t *out_buf)
 }
 
 // 协议解析与处理
-void Protocol_Parse(const uint8_t *buf, uint8_t len)
+bool Protocol_Parse(const uint8_t *buf, uint8_t len, ProtocolFrame_t *out)
 {
-    if (!buf || len < 7) return; // 最小帧长: 头+ID+CMD+LEN+CHK+尾+无数据
-    if (buf[0] != PROTOCOL_FRAME_HEAD) return;
-    if (buf[len-1] != PROTOCOL_FRAME_TAIL) return;
+    if (!buf || len < 6) return false; // 最小帧长: 头+ID+CMD+LEN+CHK+尾+无数据
+    if (buf[0] != PROTOCOL_FRAME_HEAD) return false;
+    if (buf[len-1] != PROTOCOL_FRAME_TAIL) return false;
     ProtocolFrame_t frame;
     frame.head = buf[0];
     frame.dev_id = buf[1];
     frame.cmd = buf[2];
     frame.data_len = buf[3];
-    if (frame.data_len > 8 || (5 + frame.data_len + 2) != len) return;
+    if (frame.data_len > 8 || (6 + frame.data_len) != len) return false;
     for (uint8_t i = 0; i < frame.data_len; i++) {
         frame.data[i] = buf[4 + i];
     }
     frame.checksum = buf[4 + frame.data_len];
     frame.tail = buf[5 + frame.data_len];
-    if (frame.checksum != Protocol_CalcChecksum(&frame)) return;
-    // TODO: 根据frame.cmd和data内容做实际处理
+    if (frame.checksum != Protocol_CalcChecksum(&frame)) return false;
+		
+		if(out)
+			*out = frame;
+		return true;
+}
+
+void HandleCommand(ProtocolFrame_t *frame)
+{
+		switch(frame->cmd)
+		{
+			case 0x10:
+				PrintFrameData(frame);
+				break;
+			case 0x20:
+				TIM_Step_Disable();
+				control_flag = 0;
+				MeasureResistance();
+				ResistanceSend(0x50,ResistanceA);
+				ResistanceSend(0x60,ResistanceB);
+				break;
+		}
+}
+
+void PrintFrameData(const ProtocolFrame_t *f)
+{
+    printf("Data (%d bytes): ", f->data_len);
+    for (uint8_t i = 0; i < f->data_len; i++)
+    {
+        printf("%02X ", f->data[i]);
+    }
+    printf("\r\n");
 }

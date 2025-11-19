@@ -2,6 +2,7 @@
 #define PROTOCOL_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 // 协议帧结构体
 #define PROTOCOL_FRAME_HEAD   0xAA
@@ -20,8 +21,6 @@
 #define CODE_PRESSURE 0x02
 #define CODE_ERROR 0x03
 
-
-
 #define PROTOCOL_FRAME_MAX_LEN  32
 
 typedef struct {
@@ -35,9 +34,11 @@ typedef struct {
 } ProtocolFrame_t;
 
 // 协议解析与处理
-void Protocol_Parse(const uint8_t *buf, uint8_t len);
-
+bool Protocol_Parse(const uint8_t *buf, uint8_t len, ProtocolFrame_t *out);
 // 协议帧组包
 uint8_t Protocol_Pack(ProtocolFrame_t *frame, uint8_t *out_buf);
+void HandleCommand(ProtocolFrame_t *frame);
+void PrintFrameData(const ProtocolFrame_t *f);
+
 
 #endif // PROTOCOL_H

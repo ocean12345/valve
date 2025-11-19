@@ -1,7 +1,9 @@
 ..\..\output\freertos_demo.o: ..\..\User\freertos_demo.c
 ..\..\output\freertos_demo.o: ..\..\User\freertos_demo.h
-..\..\output\freertos_demo.o: ..\..\Drivers\./SYSTEM/delay/delay.h
-..\..\output\freertos_demo.o: ..\..\Drivers\./SYSTEM/sys/sys.h
+..\..\output\freertos_demo.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h
+..\..\output\freertos_demo.o: ..\..\User\stm32f4xx_hal_conf.h
+..\..\output\freertos_demo.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h
+..\..\output\freertos_demo.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_def.h
 ..\..\output\freertos_demo.o: ..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
 ..\..\output\freertos_demo.o: ..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f407xx.h
 ..\..\output\freertos_demo.o: ..\..\Drivers\CMSIS\Include\core_cm4.h
@@ -12,10 +14,6 @@
 ..\..\output\freertos_demo.o: ..\..\Drivers\CMSIS\Include\mpu_armv7.h
 ..\..\output\freertos_demo.o: ..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\system_stm32f4xx.h
 ..\..\output\freertos_demo.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h
-..\..\output\freertos_demo.o: ..\..\User\stm32f4xx_hal_conf.h
-..\..\output\freertos_demo.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h
-..\..\output\freertos_demo.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_def.h
-..\..\output\freertos_demo.o: ..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
 ..\..\output\freertos_demo.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy/stm32_hal_legacy.h
 ..\..\output\freertos_demo.o: D:\soft2\keil\ARM\ARMCC\Bin\..\include\stddef.h
 ..\..\output\freertos_demo.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc_ex.h
@@ -68,6 +66,8 @@
 ..\..\output\freertos_demo.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h
 ..\..\output\freertos_demo.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h
 ..\..\output\freertos_demo.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_hcd.h
+..\..\output\freertos_demo.o: ..\..\Drivers\./SYSTEM/delay/delay.h
+..\..\output\freertos_demo.o: ..\..\Drivers\./SYSTEM/sys/sys.h
 ..\..\output\freertos_demo.o: ..\..\Drivers\CMSIS\Include\core_cm4.h
 ..\..\output\freertos_demo.o: ..\..\Drivers\./SYSTEM/USART/usart.h
 ..\..\output\freertos_demo.o: D:\soft2\keil\ARM\ARMCC\Bin\..\include\stdio.h
@@ -79,6 +79,7 @@
 ..\..\output\freertos_demo.o: ..\..\Drivers\./BSP/TIMER/btim.h
 ..\..\output\freertos_demo.o: ..\..\Drivers\./BSP/PWM/bsp_pwm.h
 ..\..\output\freertos_demo.o: ..\..\Drivers\./BSP/protocol/protocol.h
+..\..\output\freertos_demo.o: D:\soft2\keil\ARM\ARMCC\Bin\..\include\stdbool.h
 ..\..\output\freertos_demo.o: D:\soft2\keil\ARM\ARMCC\Bin\..\include\string.h
 ..\..\output\freertos_demo.o: D:\soft2\keil\ARM\ARMCC\Bin\..\include\math.h
 ..\..\output\freertos_demo.o: ..\..\Middlewares\FreeRTOS\include\FreeRTOS.h
