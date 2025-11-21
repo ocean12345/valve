@@ -66,9 +66,16 @@ void HandleCommand(ProtocolFrame_t *frame)
 		switch(frame->cmd)
 		{
 			case 0x10:
-				PrintFrameData(frame);
+				TIM_Step_Enable();
+				control_flag = 1;
 				break;
 			case 0x20:
+				TIM_Step_Disable();
+				control_flag = 0;
+				CurrentSend(0x30,0);
+				CurrentSend(0x40,0);
+				break;
+			case 0x30:
 				TIM_Step_Disable();
 				control_flag = 0;
 				MeasureResistance();
@@ -78,12 +85,4 @@ void HandleCommand(ProtocolFrame_t *frame)
 		}
 }
 
-void PrintFrameData(const ProtocolFrame_t *f)
-{
-    printf("Data (%d bytes): ", f->data_len);
-    for (uint8_t i = 0; i < f->data_len; i++)
-    {
-        printf("%02X ", f->data[i]);
-    }
-    printf("\r\n");
-}
+

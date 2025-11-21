@@ -11,6 +11,9 @@
 #define PWM_MIN       0.05f
 #define PWM_MAX       0.20f
 
+int LastPos = 0;
+int NewPos = 0;
+uint8_t SpeedFlag = 0;
 extern uint8_t adc_flag;
 extern float INA240_Current_A;
 extern float INA240_Current_B;
@@ -19,6 +22,25 @@ extern uint8_t control_flag;
 TIM_HandleTypeDef htim7;   // 用于步进换相
 TIM_HandleTypeDef htim5;   // PWM定时器
 TIM_HandleTypeDef htim3;   // PWM定时器
+TIM_HandleTypeDef htim4;
+
+void TIM_Speed_Init(void)
+{
+		__HAL_RCC_TIM4_CLK_ENABLE();
+
+		htim4.Instance = TIM4;
+    htim4.Init.Prescaler = 84 - 1;        // 1MHz 时基
+    htim4.Init.Period = 50000 - 1;         // 20ms测一次
+    htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    htim4.Init.CounterMode = 0;           // 基础定时器无效项，填 0 更直观
+
+    HAL_TIM_Base_Init(&htim4);
+
+    HAL_NVIC_SetPriority(TIM4_IRQn, 1, 0);
+    HAL_NVIC_EnableIRQ(TIM4_IRQn);
+	
+	  HAL_TIM_Base_Start_IT(&htim4);
+}
 
 void TIM_Step_Init(void)
 {
@@ -259,6 +281,10 @@ void TIM5_IRQHandler(void)
     HAL_TIM_IRQHandler(&htim5);
 }
 
+void TIM4_IRQHandler(void)
+{
+    HAL_TIM_IRQHandler(&htim4);
+}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -283,6 +309,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				OverflowCount--;       //向下计数溢出
 			else
 				OverflowCount++;       //向上计数溢出
+		}
+		if (htim->Instance == TIM4)
+		{
+				LastPos = NewPos;
+				NewPos = (OverflowCount*CNT_MAX) + __HAL_TIM_GET_COUNTER(&htimx_Encoder);
+				SpeedFlag = 1;
 		}
 }
 

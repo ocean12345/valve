@@ -13,7 +13,7 @@
 /*FreeRTOS*********************************************************************************************/
 #include "FreeRTOS.h"
 #include "task.h"
-
+#include "stdbool.h"
 
 __IO int64_t CaptureNumber=0;     // 输入捕获数
 
@@ -23,25 +23,27 @@ extern __IO uint32_t uwTick;
 extern int32_t OverflowCount ;    // 定时器溢出次数 
 extern float INA240_Current_A;
 extern float INA240_Current_B;
-extern int adc_flag;
+extern uint8_t adc_flag;
 extern float vout;
 extern ADC_HandleTypeDef hadc1;
 extern TIM_HandleTypeDef htim5;
 extern TIM_HandleTypeDef htim3;
 extern UART_HandleTypeDef g_uart1_handle;
-extern float pwm_outA;
-extern float filt_currA;
-extern float uA;
-extern float uB;
 extern ProtocolFrame_t rxFrame;
-uint8_t control_flag = 0;
+extern int LastPos;
+extern int NewPos;
+extern uint8_t SpeedFlag;
 
-float current;
-float voltage;
-float step = 0.1f;
-float cur = 0.0f;
+int PosChange;
+uint8_t control_flag = 0;
+uint8_t ErrorCode = 0x00;
 float ResistanceA=0.0f;
 float ResistanceB=0.0f;
+
+static uint8_t txbufA[PROTOCOL_FRAME_MAX_LEN];
+static uint8_t txbufB[PROTOCOL_FRAME_MAX_LEN];
+static uint8_t* buf_prepare = txbufA;
+static uint8_t* buf_send    = txbufB;
 /******************************************************************************************************/
 /*FreeRTOS配置*/
 
@@ -85,6 +87,8 @@ void EncoderSend(void);
 void CurrentSend(uint8_t cmd,float current_value);
 void MeasureResistance(void);
 void ResistanceSend(uint8_t cmd,float Resistance_value);
+void SpeedSend(void);
+void TargetSpeed(void);
 /******************************************************************************************************/
 
 void freertos_demo(void)
@@ -148,20 +152,17 @@ void task1(void *pvParameters)
 
 void task2(void *pvParameters)
 {   
-    while (1)
+//		TIM_Step_Enable();
+//		control_flag = 1;   
+		while (1)
     {
-//			if(!control_flag)
-//			{
-//				MeasureResistance();
-//				ResistanceSend(0x50,ResistanceA);
-//				ResistanceSend(0x60,ResistanceB);
-//				TIM_Step_Enable();
-//				control_flag = 1;
-//			}
-//			EncoderSend();
-//			CurrentSend(0x30,INA240_Current_A);
-//			CurrentSend(0x40,INA240_Current_B);
-			vTaskDelay(pdMS_TO_TICKS(2000));
+			if(SpeedFlag)
+			{
+				SpeedFlag = 0;
+				SpeedSend();
+				TargetSpeed();
+				//vTaskDelay(pdMS_TO_TICKS(500));
+			}
     }
 }
 
@@ -185,6 +186,12 @@ void task3(void *pvParameters)
 {  
 	while (1)
     {
+			if(control_flag)
+			{
+				CurrentSend(0x30,INA240_Current_A);
+				CurrentSend(0x40,INA240_Current_B);
+				EncoderSend();
+			}
 			UART_RxHandler();
 			vTaskDelay(pdMS_TO_TICKS(500));
     }
@@ -232,11 +239,43 @@ void CurrentSend(uint8_t cmd,float current_value)
 		HAL_UART_Transmit(&g_uart1_handle, txbuf, txlen, 100);
 }
 
-
-void motorTest(void)
+void SpeedSend(void)
 {
-		StepMotor_Start(1);
-		StepMotor_SetSpeed(200);
+		uint8_t* tmp = buf_prepare;
+    buf_prepare = buf_send;
+    buf_send = tmp;
+
+    PosChange = NewPos - LastPos;
+		float Speed = PosChange*0.3;//rpm
+    ProtocolFrame_t frame;
+    frame.head = PROTOCOL_FRAME_HEAD;
+    frame.dev_id = PROTOCOL_DEV_ID;
+    frame.cmd = 0x70;
+    frame.data_len = 4;
+    memcpy(frame.data, &Speed, 4);
+    frame.tail = PROTOCOL_FRAME_TAIL;
+
+    uint8_t txlen = Protocol_Pack(&frame, buf_prepare);
+    HAL_UART_Transmit_DMA(&g_uart1_handle, buf_send, txlen);	
+}
+
+void TargetSpeed(void)
+{
+		uint8_t* tmp = buf_prepare;
+    buf_prepare = buf_send;
+    buf_send = tmp;
+
+		float Speed = 1000.0/16.0*0.3;//rpm
+    ProtocolFrame_t frame;
+    frame.head = PROTOCOL_FRAME_HEAD;
+    frame.dev_id = PROTOCOL_DEV_ID;
+    frame.cmd = 0x80;
+    frame.data_len = 4;
+    memcpy(frame.data, &Speed, 4);
+    frame.tail = PROTOCOL_FRAME_TAIL;
+
+    uint8_t txlen = Protocol_Pack(&frame, buf_prepare);
+    HAL_UART_Transmit_DMA(&g_uart1_handle, buf_send, txlen);	
 }
 
 void MeasureResistance(void)
@@ -288,5 +327,19 @@ void ResistanceSend(uint8_t cmd,float Resistance_value)
 		HAL_UART_Transmit(&g_uart1_handle, txbuf, txlen, 100);
 }
 
+void ErrorSend()
+{
+		float temp = ErrorCode;
+		ProtocolFrame_t frame;
+		frame.head = PROTOCOL_FRAME_HEAD;//AA
+    frame.dev_id = PROTOCOL_DEV_ID;//01
+    frame.cmd = 0x90;
+		frame.data_len = 4;//04
+		memcpy(frame.data, &temp, 4); 
+		frame.tail = PROTOCOL_FRAME_TAIL;//55
+		uint8_t txbuf[PROTOCOL_FRAME_MAX_LEN];
+    uint8_t txlen = Protocol_Pack(&frame, txbuf);
+		HAL_UART_Transmit(&g_uart1_handle, txbuf, txlen, 100);
+}
 
 

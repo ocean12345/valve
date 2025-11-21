@@ -67,6 +67,7 @@ uint8_t uart_ring_buf[UART_RX_BUF_SIZE];
 volatile uint16_t uart_write_idx = 0;
 volatile uint16_t uart_read_idx = 0;
 
+DMA_HandleTypeDef hdma_uart4_tx;
 UART_HandleTypeDef g_uart1_handle;                  /* UART句柄 */
 ProtocolFrame_t rxframe;
 
@@ -85,6 +86,28 @@ void usart_init(uint32_t baudrate)
     HAL_UART_Receive_IT(&g_uart1_handle, &uart_rx_byte, RXBUFFERSIZE);
 }
 
+void DmaInit(void)
+{
+		__HAL_RCC_DMA1_CLK_ENABLE();
+
+    // 2. 配置 UART4_TX 对应的 DMA1 Stream4 Channel4
+    hdma_uart4_tx.Instance = DMA1_Stream4;
+    hdma_uart4_tx.Init.Channel = DMA_CHANNEL_4;
+    hdma_uart4_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    hdma_uart4_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_uart4_tx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_uart4_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_uart4_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_uart4_tx.Init.Mode = DMA_NORMAL;
+    hdma_uart4_tx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_uart4_tx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+
+    HAL_DMA_Init(&hdma_uart4_tx);
+
+    // 3. 开启 DMA 中断
+    HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
+}
 
 void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 {
@@ -106,6 +129,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
         gpio_init_struct.Alternate = USART_RX_GPIO_AF;          /* 复用为USART1 */
         HAL_GPIO_Init(USART_RX_GPIO_PORT, &gpio_init_struct);   /* 初始化接收引脚 */
 
+				// 把 DMA 绑定到 UART4
+        __HAL_LINKDMA(huart, hdmatx, hdma_uart4_tx);
 #if USART_EN_RX
         HAL_NVIC_EnableIRQ(USART_UX_IRQn);                      /* 使能USART1中断通道 */
         HAL_NVIC_SetPriority(USART_UX_IRQn, 3, 3);              /* 抢占优先级3，子优先级3 */
@@ -170,6 +195,7 @@ void UART_RxHandler(void)
         }
     }
 }
+
 
 void USART_UX_IRQHandler(void)
 { 

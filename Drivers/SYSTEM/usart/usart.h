@@ -34,6 +34,7 @@
 extern UART_HandleTypeDef g_uart1_handle;       /* UART句柄 */
 
 void usart_init(uint32_t baudrate);             /* 串口初始化函数 */
+void DmaInit(void);
 void UART_InitReceive(void);
 void UART_RxHandler(void);
 

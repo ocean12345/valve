@@ -28,6 +28,7 @@
 
 extern ADC_HandleTypeDef hadc1;
 extern DMA_HandleTypeDef hdma_adc1;
+extern DMA_HandleTypeDef hdma_uart4_tx;
 /** @addtogroup STM32F4xx_HAL_Examples
   * @{
   */
@@ -68,6 +69,11 @@ void HardFault_Handler(void)
   while (1)
   {
   }
+}
+
+void DMA1_Stream4_IRQHandler(void)
+{
+    HAL_DMA_IRQHandler(&hdma_uart4_tx);
 }
 
 void ADC_IRQHandler(void)

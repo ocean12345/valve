@@ -5,6 +5,7 @@
 
 void freertos_demo(void);
 void MeasureResistance(void);
+void CurrentSend(uint8_t cmd,float current_value);
 void ResistanceSend(uint8_t cmd,float Resistance_value);
 
 #endif

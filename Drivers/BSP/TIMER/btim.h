@@ -4,15 +4,13 @@
 #include "./SYSTEM/sys/sys.h"
 
  
-
-// === 步进换相定时器：TIM5 ===
+void TIM_Speed_Init(void);
 void TIM_Step_Init(void);
 void TIM_Step_SetFreq(uint32_t freq);
 void TIM_Step_Enable(void);
 void TIM_Step_Disable(void);
 
 
-// === PWM 定时器 TIM4 ===
 // 控制H桥 PWM 占空比（相电流）
 void TIM_PWM_Init(void);
 void TIM3_PWM_Init(void);
