@@ -38,6 +38,7 @@
 "..\..\output\bsp_ina240.o"
 "..\..\output\bsp_pwm.o"
 "..\..\output\protocol.o"
+"..\..\output\bsp_error.o"
 "..\..\output\malloc.o"
 "..\..\Middlewares\XMRAM\XMRAM.lib"
 "..\..\output\croutine.o"

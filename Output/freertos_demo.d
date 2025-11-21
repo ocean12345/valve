@@ -82,6 +82,7 @@
 ..\..\output\freertos_demo.o: D:\soft2\keil\ARM\ARMCC\Bin\..\include\stdbool.h
 ..\..\output\freertos_demo.o: D:\soft2\keil\ARM\ARMCC\Bin\..\include\string.h
 ..\..\output\freertos_demo.o: D:\soft2\keil\ARM\ARMCC\Bin\..\include\math.h
+..\..\output\freertos_demo.o: ..\..\Drivers\./BSP/Error/bsp_error.h
 ..\..\output\freertos_demo.o: ..\..\Middlewares\FreeRTOS\include\FreeRTOS.h
 ..\..\output\freertos_demo.o: ..\..\User\FreeRTOSConfig.h
 ..\..\output\freertos_demo.o: ..\..\Middlewares\FreeRTOS\include\projdefs.h

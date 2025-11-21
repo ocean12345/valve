@@ -599,6 +599,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\Drivers\BSP\protocol\protocol.c</FilePath>
             </File>
+            <File>
+              <FileName>bsp_error.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Drivers\BSP\Error\bsp_error.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

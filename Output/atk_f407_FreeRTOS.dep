@@ -217,7 +217,7 @@ I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h)(0x637AF063)
 I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h)(0x637AF063)
 I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h)(0x637AF063)
 I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_hcd.h)(0x637AF063)
-F (..\..\User\freertos_demo.c)(0x692024CA)(--c99 -c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork --split_sections -I ..\..\User -I ..\..\Drivers -I ..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include -I ..\..\Drivers\CMSIS\Include -I ..\..\Drivers\STM32F4xx_HAL_Driver\Inc -I ..\..\Middlewares -I ..\..\Middlewares\FreeRTOS\include -I ..\..\Middlewares\FreeRTOS\portable\RVDS\ARM_CM4F-ID:\soft2\packs\Keil\STM32F4xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="541" -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o ..\..\output\freertos_demo.o --depend ..\..\output\freertos_demo.d)
+F (..\..\User\freertos_demo.c)(0x69204F63)(--c99 -c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork --split_sections -I ..\..\User -I ..\..\Drivers -I ..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include -I ..\..\Drivers\CMSIS\Include -I ..\..\Drivers\STM32F4xx_HAL_Driver\Inc -I ..\..\Middlewares -I ..\..\Middlewares\FreeRTOS\include -I ..\..\Middlewares\FreeRTOS\portable\RVDS\ARM_CM4F-ID:\soft2\packs\Keil\STM32F4xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="541" -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o ..\..\output\freertos_demo.o --depend ..\..\output\freertos_demo.d)
 I (..\..\User\freertos_demo.h)(0x69201369)
 I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h)(0x637AF063)
 I (..\..\User\stm32f4xx_hal_conf.h)(0x6540A280)
@@ -299,6 +299,7 @@ I (..\..\Drivers\./BSP/protocol/protocol.h)(0x691F07FC)
 I (D:\soft2\keil\ARM\ARMCC\include\stdbool.h)(0x5D9B3488)
 I (D:\soft2\keil\ARM\ARMCC\include\string.h)(0x5D9B3488)
 I (D:\soft2\keil\ARM\ARMCC\include\math.h)(0x5D9B3482)
+I (..\..\Drivers\./BSP/Error/bsp_error.h)(0x69204A7C)
 I (..\..\Middlewares\FreeRTOS\include\FreeRTOS.h)(0x6540A280)
 I (..\..\User\FreeRTOSConfig.h)(0x69118F88)
 I (..\..\Middlewares\FreeRTOS\include\projdefs.h)(0x6540A280)
@@ -2631,6 +2632,73 @@ I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h)(0x637AF063)
 I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_hcd.h)(0x637AF063)
 I (..\..\User\freertos_demo.h)(0x69201369)
 I (..\..\Drivers\./BSP/TIMER/btim.h)(0x691EFD57)
+F (..\..\Drivers\BSP\Error\bsp_error.c)(0x69202C19)(--c99 -c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork --split_sections -I ..\..\User -I ..\..\Drivers -I ..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include -I ..\..\Drivers\CMSIS\Include -I ..\..\Drivers\STM32F4xx_HAL_Driver\Inc -I ..\..\Middlewares -I ..\..\Middlewares\FreeRTOS\include -I ..\..\Middlewares\FreeRTOS\portable\RVDS\ARM_CM4F-ID:\soft2\packs\Keil\STM32F4xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="541" -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o ..\..\output\bsp_error.o --depend ..\..\output\bsp_error.d)
+I (..\..\Drivers\./BSP/Error/bsp_error.h)(0x69204A7C)
+I (..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h)(0x6540A280)
+I (..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f407xx.h)(0x6540A280)
+I (..\..\Drivers\CMSIS\Include\core_cm4.h)(0x6540A280)
+I (D:\soft2\keil\ARM\ARMCC\include\stdint.h)(0x5D9B3488)
+I (..\..\Drivers\CMSIS\Include\cmsis_version.h)(0x6540A280)
+I (..\..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x6540A280)
+I (..\..\Drivers\CMSIS\Include\cmsis_armcc.h)(0x6540A280)
+I (..\..\Drivers\CMSIS\Include\mpu_armv7.h)(0x6540A280)
+I (..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\system_stm32f4xx.h)(0x6540A280)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h)(0x637AF063)
+I (..\..\User\stm32f4xx_hal_conf.h)(0x6540A280)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_def.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy/stm32_hal_legacy.h)(0x637AF063)
+I (D:\soft2\keil\ARM\ARMCC\include\stddef.h)(0x5D9B3488)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc_ex.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_exti.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_gpio.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_gpio_ex.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_dma.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_dma_ex.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_cortex.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_adc.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_adc.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_adc_ex.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_can.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_crc.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_cryp.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_dac.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_dac_ex.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_dcmi.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_dcmi_ex.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash_ex.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash_ramfunc.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_sram.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_fsmc.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_nor.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_nand.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pccard.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_hash.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_i2c.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_i2c_ex.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_i2s.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_i2s_ex.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_iwdg.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr_ex.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rng.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rtc.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rtc_ex.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_sd.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_sdmmc.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_spi.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim_ex.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h)(0x6540A272)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_usart.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_irda.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_smartcard.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_wwdg.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h)(0x637AF063)
+I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_hcd.h)(0x637AF063)
 F (..\..\Middlewares\MALLOC\malloc.c)(0x6540A280)(--c99 -c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork --split_sections -I ..\..\User -I ..\..\Drivers -I ..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include -I ..\..\Drivers\CMSIS\Include -I ..\..\Drivers\STM32F4xx_HAL_Driver\Inc -I ..\..\Middlewares -I ..\..\Middlewares\FreeRTOS\include -I ..\..\Middlewares\FreeRTOS\portable\RVDS\ARM_CM4F-ID:\soft2\packs\Keil\STM32F4xx_DFP\3.0.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="541" -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o ..\..\output\malloc.o --depend ..\..\output\malloc.d)
 I (..\..\Middlewares\./MALLOC/malloc.h)(0x6540A280)
 I (..\..\Drivers\./SYSTEM/sys/sys.h)(0x691DAEEA)
