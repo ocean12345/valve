@@ -21,7 +21,7 @@ int main(void)
 		HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
     delay_init(168);                    /* 延时初始化 */
-    usart_init(115200);                 /* 串口初始化为115200 */
+    usart_init(460800);                 /* 串口初始化为115200 */
 		DmaInit();
     sram_init();                        /* SRAM初始化 */
     TIM_Step_Init();

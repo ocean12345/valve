@@ -92,13 +92,13 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     if (hadc->Instance == ADC1)
     {
 				// 取 DMA 数据
-        uint16_t rawA = adc_buf[0];
-        uint16_t rawB = adc_buf[1];
+        uint16_t rawA = adc_buf[1];
+        uint16_t rawB = adc_buf[0];
 
         float vA = rawA * ADC_REF_VOLT / ADC_RESOLUTION;
         float vB = rawB * ADC_REF_VOLT / ADC_RESOLUTION;
 
-        float iA = (vA - INA240_REF_VOLT) / (INA240_GAIN * SHUNT_RESISTOR);
+        float iA = -(vA - INA240_REF_VOLT) / (INA240_GAIN * SHUNT_RESISTOR);
         float iB = (vB - INA240_REF_VOLT) / (INA240_GAIN * SHUNT_RESISTOR);
 
         // 简单低通滤波

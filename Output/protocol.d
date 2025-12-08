@@ -73,3 +73,4 @@
 ..\..\output\protocol.o: ..\..\Drivers\CMSIS\Include\core_cm4.h
 ..\..\output\protocol.o: ..\..\User\freertos_demo.h
 ..\..\output\protocol.o: ..\..\Drivers\./BSP/TIMER/btim.h
+..\..\output\protocol.o: ..\..\Drivers\./BSP/motor/bsp_motor.h

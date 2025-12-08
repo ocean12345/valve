@@ -69,3 +69,4 @@
 ..\..\output\bsp_motor.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_hcd.h
 ..\..\output\bsp_motor.o: ..\..\Drivers\CMSIS\Include\core_cm4.h
 ..\..\output\bsp_motor.o: ..\..\Drivers\./BSP/TIMER/btim.h
+..\..\output\bsp_motor.o: D:\soft2\keil\ARM\ARMCC\Bin\..\include\math.h

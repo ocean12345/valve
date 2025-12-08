@@ -1,12 +1,6 @@
 /* 包含头文件 ----------------------------------------------------------------*/
 #include "./BSP/encoder/bsp_encoder.h"
 
-/* 私有类型定义 --------------------------------------------------------------*/
-
-
-/* 私有宏定义 ----------------------------------------------------------------*/
-
-
 
 /* 私有变量 ------------------------------------------------------------------*/
 
@@ -14,28 +8,7 @@ int32_t OverflowCount = 0;//定时器溢出次数
 /* Timer handler declaration */
 TIM_HandleTypeDef    htimx_Encoder;
 
-/* 扩展变量 ------------------------------------------------------------------*/
 
-
-
-/* 私有函数原形 --------------------------------------------------------------*/
-
-
-
-/* 函数体 --------------------------------------------------------------------*/
-
-
-
-
-
-
-
-/**
-  * 函数功能: 通用定时器初始化并配置通道PWM输出
-  * 输入参数: 无
-  * 返 回 值: 无
-  * 说    明: 无
-  */
 void ENCODER_TIMx_Init(void)
 {
   /* Timer Encoder Configuration Structure declaration */
@@ -49,7 +22,7 @@ void ENCODER_TIMx_Init(void)
   htimx_Encoder.Init.ClockDivision  = TIM_CLOCKDIVISION_DIV1;
 
   sEncoderConfig.EncoderMode        = TIM_ENCODERMODE_TIx;        // SMS，设定是TI1的边沿计数还是TI2的边沿计数，还是都计数。注，F4的宏里，TIM_ENCODERMODE_TI1表示SMS=001，是在TI2通道的边沿信号计数。TIM_ENCODERMODE_TI2时同样，是在TI1通道的边沿信号计数，反的。                            
-  sEncoderConfig.IC1Polarity        = TIM_ICPOLARITY_RISING;      // CC1P，选择计数方向。
+  sEncoderConfig.IC1Polarity        = TIM_ICPOLARITY_FALLING;      // CC1P，选择计数方向。
   sEncoderConfig.IC1Selection       = TIM_ICSELECTION_DIRECTTI;   // CC1S，输入来源选择，此处TI1~TI4对应IC1~4                       
   sEncoderConfig.IC1Prescaler       = TIM_ICPSC_DIV1;             // IC1PSC，对IC1进行分频，多少次事件(有效边沿)才执行一次捕获            
   sEncoderConfig.IC1Filter          = 13;                         // IC1F，输入捕获数字滤波器
@@ -70,12 +43,6 @@ void ENCODER_TIMx_Init(void)
   HAL_NVIC_EnableIRQ(ENCODER_TIM_IRQn);
 }
 
-/**
-  * 函数功能: 基本定时器硬件初始化配置
-  * 输入参数: htim_base：基本定时器句柄类型指针
-  * 返 回 值: 无
-  * 说    明: 该函数被HAL库内部调用
-  */
 void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef* htim_base)
 {
   GPIO_InitTypeDef GPIO_InitStruct;
@@ -100,12 +67,6 @@ void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef* htim_base)
   }
 }
 
-/**
-  * 函数功能: 基本定时器硬件反初始化配置
-  * 输入参数: htim_base：基本定时器句柄类型指针
-  * 返 回 值: 无
-  * 说    明: 该函数被HAL库内部调用
-  */
 void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef* htim_base)
 {
   if(htim_base->Instance==ENCODER_TIMx)
@@ -118,13 +79,6 @@ void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef* htim_base)
   }
 }
 
-
-/**
-  * 函数功能: 中断服务函数入口设定
-  * 输入参数: 无
-  * 返 回 值: 无
-  * 说    明: 无
-  */
 void ENCODER_TIM_IRQHANDLER(void)
 {
   HAL_TIM_IRQHandler(&htimx_Encoder);

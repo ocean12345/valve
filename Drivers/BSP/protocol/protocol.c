@@ -2,6 +2,7 @@
 #include "./SYSTEM/usart/usart.h"
 #include "freertos_demo.h"
 #include "./BSP/TIMER/btim.h"
+#include "./BSP/motor/bsp_motor.h"
 
 extern float ResistanceA;
 extern float ResistanceB;
@@ -81,6 +82,9 @@ void HandleCommand(ProtocolFrame_t *frame)
 				MeasureResistance();
 				ResistanceSend(0x50,ResistanceA);
 				ResistanceSend(0x60,ResistanceB);
+				break;
+			case 0x40:
+				SetDir(frame->data[0]);
 				break;
 		}
 }

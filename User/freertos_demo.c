@@ -29,6 +29,7 @@ extern float vout;
 extern ADC_HandleTypeDef hadc1;
 extern TIM_HandleTypeDef htim5;
 extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim7;
 extern UART_HandleTypeDef g_uart1_handle;
 extern ProtocolFrame_t rxFrame;
 extern int LastPos;
@@ -135,20 +136,26 @@ void start_task(void *pvParameters)
     taskEXIT_CRITICAL();            /* 退出临界区 */
 }
 
-
+int temp=1;
+int speed = 50;
 void task1(void *pvParameters)
 {
-//    uint32_t task1_num = 0;
-//    StepMotor_SetSpeed(1); // 500Hz 步进
-//    StepMotor_Start(-1);      // 正转
+	  vTaskDelay(pdMS_TO_TICKS(5000));
+		TIM_Step_Enable();
+		control_flag = 1;  
+//		StepMotor_SetSpeed(30);
     while (1)
     {
-					vTaskDelay(pdMS_TO_TICKS(10));
-//				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
-//				vTaskDelay(pdMS_TO_TICKS(1000));
-//        StepMotor_Stop();
-//        vTaskDelay(pdMS_TO_TICKS(1000));
-//        StepMotor_Start(1); // 反转
+//		speed += temp;
+
+//    if(speed >= 550) temp = -1;
+//    if(speed <= 30)  temp = 1;
+		
+//		StepMotor_SetSpeed(60);
+		EncoderSend();
+		S_SetTargetSpeed(400);
+		SpeedSend();
+    vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
 
@@ -158,18 +165,21 @@ void task2(void *pvParameters)
 //		control_flag = 1;   
 		while (1)
     {
-			if(SpeedFlag)
-			{
-				SpeedFlag = 0;
-				SpeedSend();
-				TargetSpeed();
-				//vTaskDelay(pdMS_TO_TICKS(500));
-			}
-			if(g_error_code)
-			{
-				ErrorSend();
-				g_error_code = ERR_OK;
-			}
+//			if(SpeedFlag)
+//			{
+//				SpeedFlag = 0;
+//				SpeedSend();
+//				vTaskDelay(pdMS_TO_TICKS(3));
+//				TargetSpeed();
+//				vTaskDelay(pdMS_TO_TICKS(3));
+//			}
+//			if(g_error_code)
+//			{
+//				ErrorSend();
+//				g_error_code = ERR_OK;
+//				vTaskDelay(pdMS_TO_TICKS(3));
+//			}
+  			vTaskDelay(pdMS_TO_TICKS(5));
     }
 }
 
@@ -178,29 +188,35 @@ void MeasureCurrent(void)
 {
 		printf("current2:%f,%f\n",INA240_Current_A,INA240_Current_B);
 		uint32_t arr = htim3.Init.Period + 1;   // TIM3 的周期（比如 25）
+		uint32_t ccr1 = __HAL_TIM_GET_COMPARE(&htim5, TIM_CHANNEL_4); // PB0 = B+
+		uint32_t ccr2 = __HAL_TIM_GET_COMPARE(&htim5, TIM_CHANNEL_1); // PB1 = B-
 		uint32_t ccr3 = __HAL_TIM_GET_COMPARE(&htim3, TIM_CHANNEL_3); // PB0 = B+
 		uint32_t ccr4 = __HAL_TIM_GET_COMPARE(&htim3, TIM_CHANNEL_4); // PB1 = B-
-
+	  float dutyA_pos = (float)ccr1 / arr;
+    float dutyA_neg = (float)ccr2 / arr;
     float dutyB_pos = (float)ccr3 / arr;
     float dutyB_neg = (float)ccr4 / arr;
 
-    printf("[B 相] B+ = %.2f%%   B- = %.2f%%\r\n",
+    printf("A+ = %.2f%%   A- = %.2f%%   B+ = %.2f%%   B- = %.2f%%\r\n",
+	      dutyA_pos * 100.0f,
+        dutyA_neg * 100.0f,
         dutyB_pos * 100.0f,
         dutyB_neg * 100.0f);
 }
 
 void task3(void *pvParameters)
 {  
+		control_flag = 1;
 	while (1)
     {
-			if(control_flag)
-			{
-				CurrentSend(0x30,INA240_Current_A);
-				CurrentSend(0x40,INA240_Current_B);
-				EncoderSend();
-			}
-			UART_RxHandler();
-			vTaskDelay(pdMS_TO_TICKS(500));
+
+//			CurrentSend(0x30,INA240_Current_A);
+//			CurrentSend(0x40,INA240_Current_B);
+//			UART_RxHandler();
+//			uint32_t cnt = __HAL_TIM_GET_COUNTER(&htim7);
+//			StepMotor_PrintPinState();
+//			MeasureCurrent();
+			vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
 
@@ -253,7 +269,7 @@ void SpeedSend(void)
     buf_send = tmp;
 
     PosChange = NewPos - LastPos;
-		float Speed = PosChange*0.3;//rpm
+		float Speed = PosChange*0.75;//rpm  
     ProtocolFrame_t frame;
     frame.head = PROTOCOL_FRAME_HEAD;
     frame.dev_id = PROTOCOL_DEV_ID;
@@ -272,7 +288,7 @@ void TargetSpeed(void)
     buf_prepare = buf_send;
     buf_send = tmp;
 
-		float Speed = 1000.0/16.0*0.3;//rpm
+		float Speed = 1000.0/4.0*0.3;//rpm       1000/4*1.8/360*60
     ProtocolFrame_t frame;
     frame.head = PROTOCOL_FRAME_HEAD;
     frame.dev_id = PROTOCOL_DEV_ID;
@@ -285,39 +301,6 @@ void TargetSpeed(void)
     HAL_UART_Transmit_DMA(&g_uart1_handle, buf_send, txlen);	
 }
 
-//void MeasureResistance(void)
-//{
-//		float sampleA = 0.0f;
-//		float sampleB = 0.0f;
-//	//取二十次均值
-//    __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_4, 3); 
-//    __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, 0);
-//		vTaskDelay(pdMS_TO_TICKS(50));
-//		for(int i=0;i<20;i++)
-//		{
-//			sampleA += INA240_Current_A;
-//			vTaskDelay(pdMS_TO_TICKS(50));
-//		}
-//		__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_4, 0); 
-//    __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, 0);
-//		sampleA /= 20.0f;
-//		float duty = 4.0f/25.0f;
-//		float Vbus = 24.0f;
-//		float Veq = Vbus * duty;
-//		ResistanceA = fabsf(Veq/sampleA);
-//		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 3);
-//    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, 0);
-//		vTaskDelay(pdMS_TO_TICKS(50));
-//		for(int i=0;i<20;i++)
-//		{
-//			sampleB += INA240_Current_B;
-//			vTaskDelay(pdMS_TO_TICKS(50));
-//		}
-//		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 0);
-//    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, 0);
-//		sampleB /= 20.0f;
-//		ResistanceB = fabsf(Veq/sampleB);
-//}
 
 void ResistanceSend(uint8_t cmd,float Resistance_value)
 {
@@ -334,86 +317,40 @@ void ResistanceSend(uint8_t cmd,float Resistance_value)
 		HAL_UART_Transmit(&g_uart1_handle, txbuf, txlen, 100);
 }
 
+
 void MeasureResistance(void)
 {
-    CLEAR_ERR();   // g_error_code = ERR_OK
-
-    float sampleA = 0.0f;
-    float sampleB = 0.0f;
-    // -------------- A 路测量 ----------------
-    __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_4, 3);
+		float sampleA = 0.0f;
+		float sampleB = 0.0f;
+	//取二十次均值
+    __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_4, 3); 
     __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, 0);
-    vTaskDelay(pdMS_TO_TICKS(50));
-    for(int i = 0; i < 20; i++)
-    {
-        sampleA += INA240_Current_A;
-        vTaskDelay(pdMS_TO_TICKS(50));
-    }
-    __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_4, 0);
+		vTaskDelay(pdMS_TO_TICKS(50));
+		for(int i=0;i<20;i++)
+		{
+			sampleA += INA240_Current_A;
+			vTaskDelay(pdMS_TO_TICKS(50));
+		}
+		__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_4, 0); 
     __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, 0);
-    sampleA /= 20.0f;
-    // ===== 错误检测 A =====
-    if (sampleA == 0.0f) {
-        SET_ERR(ERR_ADC_ZERO);
-        return;
-    }
-    if (fabsf(sampleA) < 0.001f) {
-        SET_ERR(ERR_ADC_TOO_SMALL);
-        return;
-    }
-    if (fabsf(sampleA) > 50.0f) {   // 根据你的 INA240 设置调整
-        SET_ERR(ERR_ADC_TOO_BIG);
-        return;
-    }
-    float duty = 4.0f / 25.0f;
-    float Vbus = 24.0f;
-    float Veq = Vbus * duty;
-    if (sampleA == 0) {
-        SET_ERR(ERR_DIV_ZERO);
-        return;
-    }
-    ResistanceA = fabsf(Veq / sampleA);
-    if (!isfinite(ResistanceA) || ResistanceA <= 0) {
-        SET_ERR(ERR_INVALID_RESULT);
-        return;
-    }
-
-    // -------------- B 路测量 ----------------
-    sampleB = 0.0f;
-
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 3);
+		sampleA /= 20.0f;
+		float duty = 4.0f/25.0f;
+		float Vbus = 24.0f;
+		float Veq = Vbus * duty;
+		ResistanceA = fabsf(Veq/sampleA);
+		vTaskDelay(pdMS_TO_TICKS(50));
+		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 3);
     __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, 0);
-    vTaskDelay(pdMS_TO_TICKS(50));
-    for(int i = 0; i < 20; i++)
-    {
-        sampleB += INA240_Current_B;
-        vTaskDelay(pdMS_TO_TICKS(50));
-    }
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 0);
+		vTaskDelay(pdMS_TO_TICKS(50));
+		for(int i=0;i<20;i++)
+		{
+			sampleB += INA240_Current_B;
+			vTaskDelay(pdMS_TO_TICKS(50));
+		}
+		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 0);
     __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, 0);
-    sampleB /= 20.0f;
-    // ===== 错误检测 B =====
-    if (sampleB == 0.0f) {
-        SET_ERR(ERR_ADC_ZERO);
-        return;
-    }
-    if (fabsf(sampleB) < 0.001f) {
-        SET_ERR(ERR_ADC_TOO_SMALL);
-        return;
-    }
-    if (fabsf(sampleB) > 50.0f) {
-        SET_ERR(ERR_ADC_TOO_BIG);
-        return;
-    }
-    if (sampleB == 0) {
-        SET_ERR(ERR_DIV_ZERO);
-        return;
-    }
-    ResistanceB = fabsf(Veq / sampleB);
-    if (!isfinite(ResistanceB) || ResistanceB <= 0) {
-        SET_ERR(ERR_INVALID_RESULT);
-        return;
-    }
+		sampleB /= 20.0f;
+		ResistanceB = fabsf(Veq/sampleB);
 }
 
 void ErrorSend(void)
@@ -427,7 +364,6 @@ void ErrorSend(void)
 		frame.tail = PROTOCOL_FRAME_TAIL;//55
 		uint8_t txbuf[PROTOCOL_FRAME_MAX_LEN];
     uint8_t txlen = Protocol_Pack(&frame, txbuf);
-		HAL_UART_Transmit_DMA(&g_uart1_handle, txbuf, txlen);
+		HAL_UART_Transmit(&g_uart1_handle, txbuf, txlen, 100);
 }
-
 
